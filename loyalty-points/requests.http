@@ -1,0 +1,96 @@
+### 1. List tiers (seeded: SILVER / GOLD / PLATINUM)
+GET http://localhost:8080/api/tiers
+
+### 2. Register a customer (starts at the lowest tier)
+POST http://localhost:8080/api/customers
+Content-Type: application/json
+
+{
+  "name": "Asha",
+  "email": "asha@mail.com",
+  "phone": "9999999999"
+}
+
+### 3. Purchase Rs.1000 -> Silver 2% discount, earns points
+POST http://localhost:8080/api/purchases
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "amount": 1000
+}
+
+### 4. Purchase Rs.200 -> lifetime points cross 1000 -> auto-upgrade to GOLD
+POST http://localhost:8080/api/purchases
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "amount": 200
+}
+
+### 5. Purchase with redemption of 100 points (Gold discount applies)
+POST http://localhost:8080/api/purchases
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "amount": 500,
+  "pointsToRedeem": 100
+}
+
+### 6. Redeem more than balance -> 422 Unprocessable Entity (nothing saved)
+POST http://localhost:8080/api/purchases
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "amount": 500,
+  "pointsToRedeem": 999999
+}
+
+### 7. Invalid amount -> 400 Bad Request with field errors
+POST http://localhost:8080/api/purchases
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "amount": -5
+}
+
+### 8. Unknown customer -> 404 Not Found
+POST http://localhost:8080/api/purchases
+Content-Type: application/json
+
+{
+  "customerId": 999,
+  "amount": 100
+}
+
+### 9. Duplicate email -> 409 Conflict
+POST http://localhost:8080/api/customers
+Content-Type: application/json
+
+{
+  "name": "Asha Again",
+  "email": "asha@mail.com"
+}
+
+### 10. Points history (newest first)
+GET http://localhost:8080/api/customers/1/points-history?page=0&size=10
+
+### 11. Current tier, balances and progress to next tier
+GET http://localhost:8080/api/customers/1
+
+### 12. Purchase history
+GET http://localhost:8080/api/purchases/customer/1
+
+### 13. Add a tier (admin)
+POST http://localhost:8080/api/tiers
+Content-Type: application/json
+
+{
+  "name": "DIAMOND",
+  "minPoints": 20000,
+  "discountPercent": 15
+}
